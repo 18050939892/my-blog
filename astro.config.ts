@@ -4,15 +4,22 @@ import sitemap from "@astrojs/sitemap";
 import remarkToc from "remark-toc";
 import remarkCollapse from "remark-collapse";
 import { SITE } from "./src/config";
+import vercel from '@astrojs/vercel/serverless';
+import react from "@astrojs/react";
+
+// import mdx from '@astrojs/mdx';
+// import tailwind from '@astrojs/tailwind';
 
 // https://astro.build/config
 export default defineConfig({
   site: SITE.website,
-  integrations: [
-    sitemap({
-      filter: page => SITE.showArchives || !page.endsWith("/archives"),
-    }),
+  integrations: [sitemap({
+    filter: page => SITE.showArchives || !page.endsWith("/archives"),
+  }), react(),
+      // mdx(), tailwind()
   ],
+    output: 'static',
+    adapter: vercel({}),
   markdown: {
     remarkPlugins: [remarkToc, [remarkCollapse, { test: "Table of contents" }]],
     shikiConfig: {
@@ -33,7 +40,7 @@ export default defineConfig({
     experimentalLayout: "responsive",
   },
   experimental: {
-    svg: true,
+    // svg: true,
     responsiveImages: true,
     preserveScriptOrder: true,
   },

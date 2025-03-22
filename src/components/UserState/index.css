@@ -1,0 +1,6 @@
+.new-li{
+    line-height: 32.88px;
+    >a:hover{
+        color: var(--accent);
+    }
+}

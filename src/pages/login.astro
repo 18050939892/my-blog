@@ -1,0 +1,38 @@
+---
+// @ts-nocheck
+import Main from "@/layouts/Main.astro";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import { SITE } from "@/config";
+import { contentStore } from '@/store/content';
+---
+
+<Layout title={`Login | ${SITE.title}`}>
+    <Header />
+    <Main pageTitle="Login" pageDesc="Login unlock create and edit">
+        <form id="loginForm">
+            
+            * <label htmlFor="number">number</label><input name="number"></input><br><br>
+            * <label htmlFor="password">password:</label><input name="password"></input><br><br>
+        </form>
+        <button id="loginButton">点我登陆</button>
+    </Main>
+    <Footer />
+</Layout>
+<script>
+    import { contentStore } from '@/store/content';
+    function Login() {
+        const form = document.getElementById('loginForm') as HTMLFormElement
+        const formData = new FormData(form)
+        const number = formData.get('number')
+        const password = formData.get('password')
+        if(number == 'lzj'&&password =='123'){
+            contentStore.set(true);
+            window.location.href = '/'
+        }else{
+            alert('login failed')
+        }
+    }
+    document.getElementById('loginButton')?.addEventListener('click', Login)
+</script>

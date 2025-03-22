@@ -1,0 +1,211 @@
+---
+// @ts-nocheck
+import { render, type CollectionEntry } from "astro:content";
+import Main from '../../../layouts/Main.astro'
+import Layout from '../../../layouts/Layout.astro'
+import Header from '../../../components/Header.astro'
+import Footer from '../../../components/Footer.astro'
+import { SITE } from '../../../config'
+import { getCollection } from 'astro:content'
+import getSortedPosts from '../../../utils/getSortedPosts'
+import { getPath } from '../../../utils/getPath'
+
+import MarkdownEditor from '@/components/MarkdownEditor';
+
+let error = null
+let success = false
+let message = ''
+
+
+export async function getStaticPaths() {
+    const posts = await getCollection("blog");
+    
+    return posts.map(post => ({
+        params: {slug: getPath(post.id, post.filePath, false) },
+        props: { post },
+    }));
+}
+const { post } = Astro.props;
+
+
+
+
+
+
+// 当前日期，格式化为 YYYY-MM-DD
+const today = new Date().toISOString().split('T')[0]
+
+
+
+function slugify(text: string): string {
+    return text
+        .toString()
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, '-')       // 替换空格为 -
+        .replace(/&/g, '-and-')     // 替换 & 为 'and'
+        .replace(/[^\w\-]+/g, '')   // 移除非单词字符
+        .replace(/\-\-+/g, '-');    // 替换多个 - 为单个 -
+}
+const { slug } = Astro.params;
+const posts = await getCollection('blog')
+const sortedPosts = getSortedPosts(posts)
+const item = sortedPosts.filter(({data}) => slugify(data.title) == slug)[0]
+const rawContent = item?.body || '';
+---
+<Layout title={`Create | ${SITE.title}`}>
+    <Header />
+    <!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">-->
+    <Main pageTitle="Create" pageDesc="Create new article">
+        <form id="myForm">
+            <!--* <label htmlFor="slug">slug:</label><input name="slug"></input><br><br>-->
+            * <label htmlFor="title">title:</label><input name="title" value={item?.data.title||''}></input><br><br>
+            * <label htmlFor="description">description:</label><input name="description" value={item?.data.description||''}></input><br><br>
+            * <label htmlFor="author">author:</label><input name="author" value={item?.data.author||''}></input><br><br>
+            * <label htmlFor="draft">draft:</label><input type="checkbox" name="draft" checked={item?.data.draft?'checked':''}></input><br><br>
+            * <label htmlFor="tags">tags:</label><input name="tags" value={item?.data.tags||''}></input><br><br>
+            * <label htmlFor="featured">featured:</label><input type="checkbox" name="featured" checked={item?.data.featured?'checked':''}></input><br><br>
+            <!--* <label htmlFor="content">content:</label>-->
+            <!--<textarea name="content" id="markdown-editor">{rawContent}</textarea>-->
+            <div id="editor-container">
+                <MarkdownEditor client:load initialValue={rawContent}></MarkdownEditor>
+            </div>
+        </form>
+        <button id="createButton"> 点我修改</button>
+    </Main>
+    <Footer />
+</Layout>
+<script>
+
+    
+    
+    // import 'https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js'
+    // let simplemde
+    
+    function slugify(text: string): string {
+        return text
+            .toString()
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, '-')       // 替换空格为 -
+            .replace(/&/g, '-and-')     // 替换 & 为 'and'
+            .replace(/[^\w\-]+/g, '')   // 移除非单词字符
+            .replace(/\-\-+/g, '-');    // 替换多个 - 为单个 -
+    }
+    // 初始化编辑器
+    // document.addEventListener('DOMContentLoaded', function () {
+    //     // 确保编辑器元素存在
+    //     const editorElement = document.getElementById('markdown-editor')
+    //     if (editorElement) {
+    //         simplemde = new SimpleMDE({
+    //             element: editorElement,
+    //             spellChecker: false,
+    //             autofocus: true,
+    //             placeholder: '在这里输入 Markdown 内容...',
+    //             toolbar: [
+    //                 'bold', 'italic', 'heading', '|',
+    //                 'quote', 'code', 'unordered-list', 'ordered-list', '|',
+    //                 'link', 'image', '|',
+    //                 'preview', 'side-by-side', 'fullscreen', '|',
+    //                 'guide'
+    //             ]
+    //         })
+    //     }
+    // })
+    
+    
+    
+    // 使用一个变量来跟踪编辑器是否已准备好
+    let editorReady = false;
+    
+    // 监听编辑器准备就绪事件
+    document.addEventListener('editorReady', () => {
+        editorReady = true;
+        console.log('Editor is ready!');
+    });
+    
+    async function create(e:any) {
+        
+        e.preventDefault();
+        try {
+            // if (simplemde) {
+            //     // 将编辑器内容同步到原始 textarea
+            //     document.getElementById('markdown-editor').value = simplemde.value()
+            // }
+            const form = document.getElementById('myForm') as HTMLFormElement
+            const formData = new FormData(form)
+            const apiUrl = new URL('/api/edit-post', window.location.origin).toString()
+            const adminSecret = import.meta.env.PUBLIC_ADMIN_SECRET || ''
+            const slug = slugify(formData.get('title') as string)
+            const title = formData.get('title')
+            const description = formData.get('description')
+            // const content = formData.get('content')
+            const content = editorReady && window.simplemde?window.simplemde.value():''
+            const tags = formData.get('tags') as string
+            const draft = (formData.get('draft') == 'on')
+            const author = formData.get('author') || 'Sat Naing'
+            const featured = (formData.get('featured') == 'on')
+            // 处理标签 (从逗号分隔的字符串转为数组)
+            const tagArray = tags
+                .split(',')
+                .map(tag => tag.trim())
+                .filter(Boolean)
+            // 生成文章前置内容
+            const frontmatter = {
+                title,
+                description,
+                pubDatetime: new Date(),
+                tags: tagArray,
+                draft,
+                featured,
+                author
+            }
+            
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${adminSecret}`
+                },
+                body: JSON.stringify({
+                    slug,
+                    update:true,
+                    updates: {
+                        frontmatter,
+                        content
+                    }
+                })
+            })
+            window.location.href = '/'
+            
+            const result = await response.json()
+            if (response.ok) {
+                console.log(result.message)
+            } else {
+                console.log(result.error)
+            }
+            // window.location.href = '/';
+        } catch (e) {
+            console.log(e instanceof Error ? e.message : String(e))
+        }
+        
+    }
+
+    document.getElementById('createButton')?.addEventListener('click',
+        // create
+        (e)=>{
+            create(e)
+        }
+    );
+    // document.getElementById('createButton')?.addEventListener('click',()=>{
+    //     if (simplemde) {
+    //         // 将编辑器内容同步到原始 textarea
+    //         document.getElementById('markdown-editor').value = simplemde.value()
+    //     }
+    // });
+    
+    
+    
+    
+    // const { Content } = await render(item);
+</script>

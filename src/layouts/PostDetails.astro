@@ -13,6 +13,22 @@ import { slugifyStr } from "@/utils/slugify";
 import IconChevronLeft from "@/assets/icons/IconChevronLeft.svg";
 import IconChevronRight from "@/assets/icons/IconChevronRight.svg";
 import { SITE } from "@/config";
+import { getCollection } from 'astro:content'
+
+
+import Comment from './Comment'
+// import commentsData from "../data/comment/comment.json";
+// let commentEntries = [];
+// try {
+//     commentEntries = await getCollection('comment');
+//     console.log("commentEntries", commentEntries);
+// } catch (error) {
+//     console.error("获取评论数据时出错:", error);
+// }
+
+
+
+
 
 export interface Props {
   post: CollectionEntry<"blog">;
@@ -33,6 +49,24 @@ const {
   tags,
   hideEditPost,
 } = post.data;
+
+// 自己做的
+function slugify(text: string): string {
+    return text
+        .toString()
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, '-')       // 替换空格为 -
+        .replace(/&/g, '-and-')     // 替换 & 为 'and'
+        .replace(/[^\w\-]+/g, '')   // 移除非单词字符
+        .replace(/\-\-+/g, '-');    // 替换多个 - 为单个 -
+}
+
+const postsdemo = await getCollection('blog')
+// const sortedPosts = getSortedPosts(posts)
+const item = postsdemo.filter(({data}) => data.title == title)
+const slug=slugify(item[0].data.title)
+
 
 const { Content } = await render(post);
 
@@ -100,11 +134,25 @@ const nextPost =
     <div class="flex items-center gap-4">
       <Datetime {pubDatetime} {modDatetime} {timezone} size="lg" class="my-2" />
       <EditPost class="max-sm:hidden" {hideEditPost} {post} />
+        <span>|</span>
+        <a href={`/edit/${slug}`}  ><span >set</span></a>
     </div>
     <article id="article" class="mx-auto prose mt-8 max-w-3xl">
       <Content />
     </article>
-
+    <hr class="my-8 border-dashed" />
+    
+    
+    
+    
+    
+    <Comment articleTitle={title} client:load/>
+    
+    
+    
+    
+    
+    
     <hr class="my-8 border-dashed" />
 
     <EditPost class="sm:hidden" {hideEditPost} {post} />
@@ -165,6 +213,7 @@ const nextPost =
 </Layout>
 
 <script is:inline data-astro-rerun>
+  
   /** Create a progress indicator
    *  at the top */
   function createProgressBar() {

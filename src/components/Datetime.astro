@@ -46,7 +46,10 @@ const time = datetime.format("hh:mm A"); // e.g., '08:30 PM'
         Updated:
       </span>
     ) : (
-      <span class="sr-only">Published:</span>
+        <span class:list={["text-sm italic", { "sm:text-base": size === "lg" }]}>
+        Published:
+      </span>
+      <!--<span class="sr-only">Published:</span>-->
     )
   }
   <span class:list={["text-sm italic", { "sm:text-base": size === "lg" }]}>

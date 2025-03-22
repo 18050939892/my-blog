@@ -1,0 +1,1 @@
+import{c as r}from"./content.CfytH92Y.js";function c(){const e=document.getElementById("loginForm"),t=new FormData(e),o=t.get("number"),n=t.get("password");o=="lzj"&&n=="123"?(r.set(!0),window.location.href="/"):alert("login failed")}document.getElementById("loginButton")?.addEventListener("click",c);
