@@ -9,7 +9,7 @@ COPY package.json pnpm-lock.yaml ./
 RUN npm install
 
 COPY . .
-RUN npm run build
+RUN #npm run build
 
 # Runtime stage for serving the application
 FROM nginx:mainline-alpine-slim AS runtime
