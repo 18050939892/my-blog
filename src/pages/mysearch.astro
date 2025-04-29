@@ -1,0 +1,78 @@
+---
+import "@pagefind/default-ui/css/ui.css";
+import Main from "@/layouts/Main.astro";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import { SITE } from "@/config";
+import MyCard from '../components/MyCard.astro'
+
+const backUrl = SITE.showBackButton ? `${Astro.url.pathname}` : "/";
+---
+
+<Layout title={`Search | ${SITE.title}`}>
+    <Header />
+    <Main pageTitle="Search" pageDesc="Search any article ...">
+            <span>search:</span><input id="search-input"></input>
+        <div id="search-show"></div>
+    </Main>
+    <Footer />
+</Layout>
+
+<script >
+    function slugify(text: string): string {
+        return text
+            .toString()
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, '-')       // 替换空格为 -
+            .replace(/&/g, '-and-')     // 替换 & 为 'and'
+            .replace(/[^\w\-]+/g, '')   // 移除非单词字符
+            .replace(/\-\-+/g, '-');    // 替换多个 - 为单个 -
+    }
+    const responsedemo2 = await fetch(`${window.location.origin}/api/edit-post`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({slug:'fsfs', updates:{frontmatter:{},content:''} , update:true }),
+    });
+    const data = await responsedemo2.json();
+    const pageFindSearch: HTMLElement | null = document.querySelector("#search-show");
+    const search: HTMLElement | null = document.querySelector("#search-input");
+         // pageFindSearch.innerHTML = `
+         //   ${data.comments.map((data:any) =>
+         //     (<MyCard variant="h3"  data={data} id={slugify(data.title)} />)
+         // )}
+         //  `;
+    search?.addEventListener("change", (e:any) => {
+        console.log(e.currentTarget.value);
+       const a = data.comments.filter((comment:any) => comment.content.includes(e.currentTarget.value))
+        console.log(a)
+        if(pageFindSearch!=null){
+            pageFindSearch.innerHTML = '';
+            a.map((item:any) => {
+                pageFindSearch.innerHTML += `<a
+    href='/myposts/${slugify(item.title)}'
+    class="inline-block text-lg font-medium text-accent decoration-dashed underline-offset-4 focus-visible:no-underline focus-visible:underline-offset-0"
+  >${item.title}<br />${item.content}</a><br/><br/>`;
+            })
+
+        }
+
+    })
+    
+    
+    
+    
+    
+    
+</script>
+<style is:global>
+#search-input{
+    all: revert !important;
+    }
+#search-button{
+    all: revert !important;
+    }
+</style>

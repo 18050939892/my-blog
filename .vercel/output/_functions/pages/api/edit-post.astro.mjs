@@ -1,66 +1,5 @@
-import fs from 'fs/promises';
-import path from 'path';
-import matter from 'gray-matter';
+import { MongoClient } from 'mongodb';
 export { renderers } from '../../renderers.mjs';
-
-async function editPost(slug, updates) {
-  try {
-    const projectRoot = process.cwd();
-    const postsDir = path.join(projectRoot, "src/data/blog");
-    const filePath = path.join(postsDir, `${slug}.md`);
-    const updatedFrontmatter = (
-      // data ? { ...data, ...(updates.frontmatter || {}) } :
-      { ...updates.frontmatter || {} }
-    );
-    const updatedContent = (
-      // content ?(updates.content !== undefined ? updates.content : content) :
-      updates.content !== void 0 ? updates.content : ""
-    );
-    const updatedFileContent = matter.stringify(updatedContent, updatedFrontmatter);
-    await fs.writeFile(filePath, updatedFileContent, "utf-8");
-    return {
-      success: true,
-      message: `文章 "${slug}" 已更新成功!`
-    };
-  } catch (error) {
-    console.error(`更新文章 "${slug}" 失败:`, error);
-    return {
-      success: false,
-      message: `更新文章失败: ${error instanceof Error ? error.message : String(error)}`
-    };
-  }
-}
-async function editPut(slug, updates) {
-  try {
-    const projectRoot = process.cwd();
-    const postsDir = path.join(projectRoot, "src/data/blog");
-    const filePath = path.join(postsDir, `${slug}.md`);
-    try {
-      await fs.access(filePath);
-    } catch {
-      return {
-        success: false,
-        message: `文章 "${slug}" 不存在`
-      };
-    }
-    const fileContent = await fs.readFile(filePath, "utf-8");
-    const { data, content } = matter(fileContent);
-    const updatedFrontmatter = { ...data, ...updates.frontmatter || {} };
-    const updatedContent = updates.content !== void 0 ? updates.content : content;
-    const updatedFileContent = matter.stringify(updatedContent, updatedFrontmatter);
-    await fs.writeFile(filePath, updatedFileContent, "utf-8");
-    return {
-      success: true,
-      message: `文章 "${slug}" 已更新成功!`
-    };
-  } catch (error) {
-    console.error(`更新文章 "${slug}" 失败:`, error);
-    return {
-      success: false,
-      message: `更新文章失败: ${error instanceof Error ? error.message : String(error)}`
-    };
-  }
-}
 
 const prerender = false;
 const POST = async ({ request }) => {
@@ -73,29 +12,49 @@ const POST = async ({ request }) => {
         headers: { "Content-Type": "application/json" }
       });
     }
-    updates.frontmatter.pubDatetime = new Date(updates.frontmatter.pubDatetime);
-    const result = update ? await editPut(slug, updates) : await editPost(slug, updates);
-    if (result.success) {
+    const MONGODB_URI = "mongodb+srv://18050939892:deerkesi3815@blog.ssrtblo.mongodb.net/blogBatabase?retryWrites=true&w=majority&appName=blog";
+    const client = new MongoClient(MONGODB_URI);
+    await client.connect();
+    const database = client.db("blog");
+    const blog = database.collection("blog");
+    if (updates.content === "") {
+      const allBlogs = await blog.find({}).toArray();
       return new Response(
         JSON.stringify({
           success: true,
-          message: result.message
+          message: "获取所有评论成功",
+          comments: allBlogs
         }),
-        {
-          headers: { "Content-Type": "application/json" }
-        }
-      );
-    } else {
-      return new Response(
-        JSON.stringify({
-          error: result.message
-        }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" }
-        }
+        { status: 200, headers: { "Content-Type": "application/json" } }
       );
     }
+    const commentWithDate = {
+      content: updates.content,
+      ...updates.frontmatter
+    };
+    if (update) {
+      const oldPubDatetime = await blog.find({ title: updates.frontmatter.title }).toArray();
+      updates.frontmatter.modDatetime = new Date(updates.frontmatter.pubDatetime);
+      updates.frontmatter.pubDatetime = new Date(oldPubDatetime[0].pubDatetime);
+      await blog.updateOne(
+        { title: updates.frontmatter.title },
+        // 查询条件，找到要更新的文档
+        { $set: { ...updates.frontmatter, content: updates.content } }
+        // 将新评论添加到评论数组
+      );
+    } else {
+      updates.frontmatter.pubDatetime = new Date(updates.frontmatter.pubDatetime);
+      await blog.insertOne(commentWithDate);
+    }
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: "successfully add"
+      }),
+      {
+        headers: { "Content-Type": "application/json" }
+      }
+    );
   } catch (error) {
     return new Response(
       JSON.stringify({
@@ -110,9 +69,9 @@ const POST = async ({ request }) => {
 };
 
 const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
-    __proto__: null,
-    POST,
-    prerender
+  __proto__: null,
+  POST,
+  prerender
 }, Symbol.toStringTag, { value: 'Module' }));
 
 const page = () => _page;

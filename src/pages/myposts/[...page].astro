@@ -1,0 +1,50 @@
+---
+// @ts-nocheck
+import type { GetStaticPaths } from "astro";
+import { getCollection } from "astro:content";
+import Main from "@/layouts/Main.astro";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import Card from "@/components/Card.astro";
+import Pagination from "@/components/Pagination.astro";
+import getSortedPosts from "@/utils/getSortedPosts";
+import { SITE } from "@/config";
+import MyCard from "@/components/MyCard.astro";
+export const getStaticPaths = (async ({ paginate }) => {
+    const siteUrl = import.meta.env.SITE || 'http://localhost:4321';
+    const responsedemo2 = await fetch(`http://localhost:4321/api/edit-post`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({slug:'fsfs', updates:{frontmatter:{},content:''} , update:true }),
+    });
+    const data = await responsedemo2.json();
+  return paginate( data.comments, { pageSize: SITE.postPerPage });
+}) satisfies GetStaticPaths;
+function slugify(text: string): string {
+    return text
+        .toString()
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, '-')       // 替换空格为 -
+        .replace(/&/g, '-and-')     // 替换 & 为 'and'
+        .replace(/[^\w\-]+/g, '')   // 移除非单词字符
+        .replace(/\-\-+/g, '-');    // 替换多个 - 为单个 -
+}
+const { page } = Astro.props;
+---
+
+<Layout title={`Posts | ${SITE.title}`}>
+  <Header />
+  <Main pageTitle="Posts" pageDesc="All the articles I've posted.">
+    <ul>
+      {page.data.map((data:any) => <MyCard variant="h3"  data={data} id={slugify(data.title)} />)}
+    </ul>
+  </Main>
+
+  <Pagination {page} />
+
+  <Footer noMarginTop={page.lastPage > 1} />
+</Layout>

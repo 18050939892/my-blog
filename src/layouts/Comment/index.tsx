@@ -1,20 +1,53 @@
-import { useState} from 'react';
-
-import commentsData from "../../data/comment/comment.json";
-
+// @ts-nocheck
+import { useEffect, useState } from 'react'
 interface CommentProps {
     articleTitle: string;
 }
 
+interface Comment {
+    author: string;
+    date: string;
+    text: string;
+}
 export default function Comment({ articleTitle }: CommentProps) {
-    const itemList = commentsData.comments.filter(item => item.articleTitle === articleTitle);
-    const [commentList] = useState(itemList || []);
-    // const [commentList] = useState(commentsData.comments || []);
 
     const [newComment, setNewComment] = useState({ author: "", text: "", articleTitle });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState("");
-
+    const [dataDemo,setDataDemo]=useState<Comment[]>({ author: "", text: "", articleTitle: '' })
+   async function send(){
+        const responsedemo = await fetch('/api/comments', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ author: "", text: "", articleTitle: '' }),
+        });
+       const data = await responsedemo.json();
+      setDataDemo(
+        data.comments.filter(
+          (item: { articleTitle: string }) => item.articleTitle === articleTitle
+        )
+      );
+    }
+    // async function sendblog(){
+    //     const responsedemo2 = await fetch('/api/edit-post', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({slug:'fsfs', updates:{frontmatter:{},content:''} , update:true }),
+    //     });
+    //    const data = await responsedemo2.json();
+    //       console.log(data.comments);
+    // }
+    
+    
+    useEffect(() => {
+        send()
+        // sendblog()
+    },[])
+    
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -45,21 +78,25 @@ export default function Comment({ articleTitle }: CommentProps) {
             } else {
                 setMessage(`提交失败: ${result.message}`);
             }
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
-            console.error("提交评论时出错:", error);
+            
             setMessage("提交评论时发生错误，请稍后再试");
         } finally {
             setIsSubmitting(false);
         }
+        
+        send()
+        
     };
 
     return (
         <section className="comment-section my-8">
             <h2 className="text-2xl font-bold mb-4">评论</h2>
 
-            {commentList.length > 0 ? (
+            {dataDemo.length > 0 ? (
                 <div className="space-y-4 mb-6">
-                    {commentList.map((comment, index) => (
+                    {dataDemo.map((comment, index:number) => (
                         <div key={index} className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
                             <div className="flex items-center mb-2 text-sm text-gray-600 dark:text-gray-400">
                                 <span className="font-semibold">{comment.author}</span>

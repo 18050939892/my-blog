@@ -1,0 +1,122 @@
+---
+// @ts-nocheck
+import { type CollectionEntry, getCollection } from 'astro:content'
+import Main from "@/layouts/Main.astro";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import Card from "@/components/Card.astro";
+import getPostsByGroupCondition from "@/utils/getPostsByGroupCondition";
+import { SITE } from "@/config";
+import MyCard from "@/components/MyCard.astro";
+
+// Redirect to 404 page if `showArchives` config is false
+if (!SITE.showArchives) {
+  return Astro.redirect("/404");
+}
+
+const posts = await getCollection("blog", ({ data }) => !data.draft);
+
+
+
+const responsedemo2 = await fetch('http://localhost:4321/api/edit-post', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({slug:'fsfs', updates:{frontmatter:{},content:''} , update:true }),
+});
+const data = await responsedemo2.json();
+const blogMessage=data.comments.filter((item:any)=>(!item.draft))
+
+
+
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+let a:Record<string,[]>={}
+
+    blogMessage.forEach((item:any)=>{
+        const date = new Date(item.modDatetime || item.pubDatetime);
+        const articlesYear = date.getFullYear()
+        if (!a[articlesYear]) {
+            a[articlesYear] = [];
+        }
+        a[articlesYear].push(item);
+    })
+
+    const b:Record<string,[]> ={}
+blogMessage.forEach((item:any)=>{
+    const date = new Date(item.modDatetime || item.pubDatetime);
+    const monthIndex = date.getMonth()
+    if(!b[monthIndex]){
+        b[monthIndex]=[];
+    }
+    b[monthIndex].push(item);
+})
+
+function slugify(text: string): string {
+    return text
+        .toString()
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, '-')       // 替换空格为 -
+        .replace(/&/g, '-and-')     // 替换 & 为 'and'
+        .replace(/[^\w\-]+/g, '')   // 移除非单词字符
+        .replace(/\-\-+/g, '-');    // 替换多个 - 为单个 -
+}
+---
+
+<Layout title={`Archives | ${SITE.title}`}>
+  <Header />
+  <Main pageTitle="Archives" pageDesc="All the articles I've archived.">
+    
+    {
+        Object.entries(a)
+        .sort(([yearA], [yearB]) => Number(yearB) - Number(yearA))
+        .map(([year, yearGroup]) => (
+          <div>
+            <span class="text-2xl font-bold">{year}</span>
+            <!--<sup class="text-sm">{yearGroup.length}</sup>-->
+            {Object.entries(b)
+              .sort(([monthA], [monthB]) => Number(monthB) - Number(monthA))
+              .map(([month, monthGroup]) => (
+                <div class="flex flex-col sm:flex-row">
+                  <div class="mt-6 min-w-36 text-lg sm:my-6">
+                    <span class="font-bold">{months[Number(month)]}</span>
+                    <!--<sup class="text-xs">{monthGroup.length}</sup>-->
+                  </div>
+                  <ul>
+                    {monthGroup
+                        .sort(
+                        (a:any, b:any) =>
+                            Math.floor(
+                                new Date(b.pubDatetime).getTime() / 1000
+                            ) -
+                            Math.floor(
+                                new Date(a.pubDatetime).getTime() / 1000
+                            )
+                    )
+                      .map((data:any) => (
+                          <MyCard variant="h3"  data={data} id={slugify(data.title)} />
+                      ))}
+                  </ul>
+                </div>
+              ))}
+          </div>
+        ))
+    }
+  </Main>
+  <Footer />
+</Layout>

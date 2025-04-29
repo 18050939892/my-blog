@@ -1,0 +1,64 @@
+---
+import { type CollectionEntry, getCollection } from "astro:content";
+import MyPostDetails from "@/layouts/MyPostDetails.astro";
+import getSortedPosts from "@/utils/getSortedPosts";
+import { getPath } from "@/utils/getPath";
+
+export interface Props {
+  post: CollectionEntry<"blog">;
+}
+
+
+
+
+export async function getStaticPaths() {
+    function slugify(text: string): string {
+        return text
+            .toString()
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, '-')       // 替换空格为 -
+            .replace(/&/g, '-and-')     // 替换 & 为 'and'
+            .replace(/[^\w\-]+/g, '')   // 移除非单词字符
+            .replace(/\-\-+/g, '-');    // 替换多个 - 为单个 -
+    }
+    const responsedemo2 = await fetch(`http://localhost:4321/api/edit-post`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({slug:'fsfs', updates:{frontmatter:{},content:''} , update:true }),
+    });
+    const data = await responsedemo2.json();
+    const postResult=data.comments.map((post:any) =>({
+          params: { slug: slugify(post.title) },
+          props: { post },
+    }))
+  return postResult;
+}
+
+function slugify(text: string): string {
+    return text
+        .toString()
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, '-')       // 替换空格为 -
+        .replace(/&/g, '-and-')     // 替换 & 为 'and'
+        .replace(/[^\w\-]+/g, '')   // 移除非单词字符
+        .replace(/\-\-+/g, '-');    // 替换多个 - 为单个 -
+}
+const { slug } = Astro.params;
+const responsedemo2 = await fetch('http://localhost:4321/api/edit-post', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({slug:'fsfs', updates:{frontmatter:{},content:''} , update:true }),
+});
+const data = await responsedemo2.json();
+const blogMessage=data.comments.filter((item:any)=>(slugify(item.title) == slug))[0];
+blogMessage.Content=blogMessage.content
+---
+
+<MyPostDetails post={{data: blogMessage}} posts={data.comments} />
+<!--<MyPostDetails post={{data: {...blogMessage,Content:blogMessage.content}}} posts={data.comments} />-->

@@ -1,4 +1,5 @@
 ---
+// @ts-nocheck
 import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
@@ -6,6 +7,7 @@ import Footer from "@/components/Footer.astro";
 import Socials from "@/components/Socials.astro";
 import LinkButton from "@/components/LinkButton.astro";
 import Card from "@/components/Card.astro";
+import MyCard from "@/components/MyCard.astro";
 import Hr from "@/components/Hr.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
 import IconRss from "@/assets/icons/IconRss.svg";
@@ -18,6 +20,29 @@ const posts = await getCollection("blog");
 const sortedPosts = getSortedPosts(posts);
 const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
 const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
+
+const siteUrl = 'http://localhost:4321';
+    const responsedemo2 = await fetch(`http://localhost:4321/api/edit-post`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({slug:'fsfs', updates:{frontmatter:{},content:''} , update:true }),
+    });
+   const data = await responsedemo2.json();
+   const blogMessage=data.comments.filter((item:any)=>(item.featured))
+   const recentBlogMessage=data.comments.filter((item:any)=>(!item.featured))
+// 这个替代featuredPosts
+function slugify(text: string): string {
+    return text
+        .toString()
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, '-')       // 替换空格为 -
+        .replace(/&/g, '-and-')     // 替换 & 为 'and'
+        .replace(/[^\w\-]+/g, '')   // 移除非单词字符
+        .replace(/\-\-+/g, '-');    // 替换多个 - 为单个 -
+}
 ---
 
 <Layout>
@@ -67,17 +92,41 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
         )
       }
     </section>
-
     <Hr />
-
-    {
-      featuredPosts.length > 0 && (
+      <!--{blogMessage.map((item:any) => (-->
+      <!--    <div key={item.id}>{item.title}</div>-->
+      <!--))}-->
+      <!--{featuredPosts.map((item:any) => (-->
+      <!--    <div key={item.id}>{item.data.id}</div>-->
+      <!--))}-->
+    <!--{-->
+    <!--    featuredPosts.length > 0 && (-->
+    <!--    <>-->
+    <!--      <section id="featured" class="pt-12 pb-6">-->
+    <!--        <h2 class="text-2xl font-semibold tracking-wide">Featured</h2>-->
+    <!--        <ul>-->
+    <!--          {featuredPosts.map(data => (-->
+    <!--            &lt;!&ndash;<Card variant="h3" {...data}  />&ndash;&gt;-->
+    <!--            <MyCard variant="h3" {...data}  />-->
+    <!--            &lt;!&ndash;<Card variant="h3" {...data} data={data} id={data._id} />&ndash;&gt;-->
+    <!--          ))}-->
+    <!--        </ul>-->
+    <!--      </section>-->
+    <!--      {recentPosts.length > 0 && <Hr />}-->
+    <!--    </>-->
+    <!--  )-->
+    <!--}    -->
+      {
+          blogMessage.length > 0 && (
         <>
           <section id="featured" class="pt-12 pb-6">
             <h2 class="text-2xl font-semibold tracking-wide">Featured</h2>
             <ul>
-              {featuredPosts.map(data => (
-                <Card variant="h3" {...data} />
+              {blogMessage.map((data:any) => (
+              <!--{featuredPosts.map((data:any) => (-->
+                <!--<Card variant="h3" {...data}  />-->
+                <!--<MyCard variant="h3" {...data}  />-->
+                <MyCard variant="h3"  data={data} id={slugify(data.title)} />
               ))}
             </ul>
           </section>
@@ -85,15 +134,28 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
         </>
       )
     }
-
-    {
-      recentPosts.length > 0 && (
+    
+    <!--{-->
+    <!--  recentPosts.length > 0 && (-->
+    <!--    <section id="recent-posts" class="pt-12 pb-6">-->
+    <!--      <h2 class="text-2xl font-semibold tracking-wide">Recent Posts</h2>-->
+    <!--      <ul>-->
+    <!--        {recentPosts.map(-->
+    <!--          (data, index) =>-->
+    <!--            index < SITE.postPerIndex && <Card variant="h3" {...data} />-->
+    <!--        )}-->
+    <!--      </ul>-->
+    <!--    </section>-->
+    <!--  )-->
+    <!--}    -->
+      {
+          recentBlogMessage.length > 0 && (
         <section id="recent-posts" class="pt-12 pb-6">
           <h2 class="text-2xl font-semibold tracking-wide">Recent Posts</h2>
           <ul>
-            {recentPosts.map(
-              (data, index) =>
-                index < SITE.postPerIndex && <Card variant="h3" {...data} />
+            {recentBlogMessage.map(
+              (data:any, index) =>
+                index < 4 &&  <MyCard variant="h3"  data={data} id={slugify(data.title)} />
             )}
           </ul>
         </section>
@@ -101,7 +163,10 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
     }
 
     <div class="my-8 text-center">
-      <LinkButton href="/posts/">
+      <!--<LinkButton href="/posts/">-->
+      <!--  All Posts-->
+      <!--  <IconArrowRight class="inline-block" />      -->
+          <LinkButton href="/myposts/">
         All Posts
         <IconArrowRight class="inline-block" />
       </LinkButton>

@@ -64,7 +64,7 @@ async function check(Component, props, children) {
     }
     return React.createElement("div");
   }
-  await renderToStaticMarkup.call(this, Tester, props, children, {});
+  await renderToStaticMarkup.call(this, Tester, props, children);
   return isReactComponent;
 }
 async function getNodeWritable() {
@@ -76,7 +76,7 @@ async function getNodeWritable() {
   return Writable;
 }
 function needsHydration(metadata) {
-  return metadata.astroStaticSlot ? !!metadata.hydrate : true;
+  return metadata?.astroStaticSlot ? !!metadata.hydrate : true;
 }
 async function renderToStaticMarkup(Component, props, { default: children, ...slotted }, metadata) {
   let prefix;
@@ -189,12 +189,13 @@ function isFormRequest(contentType) {
   const type = contentType?.split(";")[0].toLowerCase();
   return formContentTypes.some((t) => type === t);
 }
-var server_default = {
+const renderer = {
   name: "@astrojs/react",
   check,
   renderToStaticMarkup,
   supportsAstroStaticSlot: true
 };
+var server_default = renderer;
 
 const renderers = [Object.assign({"name":"@astrojs/react","clientEntrypoint":"@astrojs/react/client.js","serverEntrypoint":"@astrojs/react/server.js"}, { ssr: server_default }),];
 

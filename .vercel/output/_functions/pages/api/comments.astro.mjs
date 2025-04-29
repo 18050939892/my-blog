@@ -1,41 +1,31 @@
-import fs from 'fs/promises';
-import path from 'path';
+import { MongoClient } from 'mongodb';
 export { renderers } from '../../renderers.mjs';
 
 const prerender = false;
 const POST = async ({ request }) => {
+  const MONGODB_URI = "mongodb+srv://18050939892:deerkesi3815@blog.ssrtblo.mongodb.net/blogBatabase?retryWrites=true&w=majority&appName=blog";
+  const client = new MongoClient(MONGODB_URI);
+  await client.connect();
+  const database = client.db("blog");
+  const comments = database.collection("comments");
+  const newComment = await request.json();
   try {
-    const newComment = await request.json();
-    if (!newComment.author || !newComment.text || !newComment.articleTitle) {
+    if (newComment.author === "" && newComment.text === "") {
+      const allComments = await comments.find({}).toArray();
       return new Response(
         JSON.stringify({
-          success: false,
-          message: "昵称和评论内容以及评论对象不能为空"
+          success: true,
+          message: "获取所有评论成功",
+          comments: allComments
         }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        { status: 200, headers: { "Content-Type": "application/json" } }
       );
     }
     const commentWithDate = {
       ...newComment,
       date: (/* @__PURE__ */ new Date()).toISOString()
     };
-    const commentsFilePath = path.join(
-      process.cwd(),
-      "src/data/comment/comment.json"
-    );
-    let commentsData;
-    try {
-      const fileContent = await fs.readFile(commentsFilePath, "utf-8");
-      commentsData = JSON.parse(fileContent);
-    } catch (error) {
-      commentsData = { comments: [] };
-    }
-    commentsData.comments.push(commentWithDate);
-    await fs.writeFile(
-      commentsFilePath,
-      JSON.stringify(commentsData, null, 2),
-      "utf-8"
-    );
+    await comments.insertOne(commentWithDate);
     return new Response(
       JSON.stringify({
         success: true,
@@ -44,14 +34,16 @@ const POST = async ({ request }) => {
       { status: 201, headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("处理评论时出错:", error);
     return new Response(
       JSON.stringify({
         success: false,
-        message: "服务器错误，无法处理评论"
+        message: "服务器错误，无法处理评论",
+        error: error.toString()
       }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
+  } finally {
+    await client.close();
   }
 };
 
