@@ -11,12 +11,11 @@ import { SITE } from "@/config";
 import { slugifyStr } from '../../utils/slugify'
 
 const posts = await getCollection("blog");
-const responsedemo2 = await fetch(`http://localhost:4321/api/edit-post`, {
-    method: 'POST',
+const responsedemo2 = await fetch(`https://myblogvalue-production.up.railway.app/blog`, {
+    method: 'GET',
     headers: {
         'Content-Type': 'application/json',
     },
-    body: JSON.stringify({slug:'fsfs', updates:{frontmatter:{},content:''} , update:true }),
 });
 const data = await responsedemo2.json();
 let myTags = data.comments.flatMap((post:any) => post.tags)

@@ -20,16 +20,13 @@ const posts = await getCollection("blog");
 const sortedPosts = getSortedPosts(posts);
 const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
 const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
-
-const siteUrl = 'http://localhost:4321';
-    const responsedemo2 = await fetch(`http://localhost:4321/api/edit-post`, {
-        method: 'POST',
+    const responsedemo2 = await fetch(`https://myblogvalue-production.up.railway.app/blog`, {
+        method: 'GET',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({slug:'fsfs', updates:{frontmatter:{},content:''} , update:true }),
     });
-   const data = await responsedemo2.json();
+   const data =await responsedemo2.json();
    const blogMessage=data.comments.filter((item:any)=>(item.featured))
    const recentBlogMessage=data.comments.filter((item:any)=>(!item.featured))
 // 这个替代featuredPosts

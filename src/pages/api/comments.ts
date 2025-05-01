@@ -85,7 +85,7 @@ export const POST: APIRoute = async ({ request }) => {
                 success: false,
                 message: "服务器配置错误",
             }),
-            { status: 500, headers: { "Content-Type": "application/json" } }
+            { status: 501, headers: { "Content-Type": "application/json" } }
         );
     }
     

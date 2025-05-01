@@ -30,12 +30,11 @@ const backUrl = SITE.showBackButton ? `${Astro.url.pathname}` : "/";
             .replace(/[^\w\-]+/g, '')   // 移除非单词字符
             .replace(/\-\-+/g, '-');    // 替换多个 - 为单个 -
     }
-    const responsedemo2 = await fetch(`${window.location.origin}/api/edit-post`, {
-        method: 'POST',
+    const responsedemo2 = await fetch(`https://myblogvalue-production.up.railway.app/blog`, {
+        method: 'GET',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({slug:'fsfs', updates:{frontmatter:{},content:''} , update:true }),
     });
     const data = await responsedemo2.json();
     const pageFindSearch: HTMLElement | null = document.querySelector("#search-show");
