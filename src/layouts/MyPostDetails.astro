@@ -14,7 +14,7 @@ import IconChevronLeft from "@/assets/icons/IconChevronLeft.svg";
 import IconChevronRight from "@/assets/icons/IconChevronRight.svg";
 import { SITE } from "@/config";
 import { marked } from 'marked';
-
+import {MyContent} from './Content'
 import Comment from './Comment'
     const { post, posts } = Astro.props;
     
@@ -115,7 +115,8 @@ const ogImage = ogImageUrl
 <a href={`/myedit/${slug}`}  ><span >set</span></a>
 </div>
 <article id="article" class="mx-auto prose mt-8 max-w-3xl">
-    <div class="prose" set:html={htmlContent}></div>
+    <!--<div class="prose" set:html={htmlContent}></div>-->
+    <MyContent title={title} client:only="react"></MyContent>
     <!--{content}-->
 <!--<Content />-->
 </article>
