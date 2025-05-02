@@ -1,17 +1,37 @@
+import { useEffect, useState } from 'react'
 export interface Props {
     check:string,
     size:string,
     sure:boolean
 }
-export async function RealCard(props: Props) {
+interface Blog {
+    title: string;
+    modDatetime: string;
+    pubDatetime: string;
+    description:string;
+    draft:boolean;
+    featured:boolean;
+}
+export function RealCard(props: Props) {
     const {check,size,sure} = props
-    const responsedemo2 = await fetch(`https://myblogvalue-production.up.railway.app/blog`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Cache-Control': 'no-cache', // 防止缓存
-        },
-    });
+    // @ts-ignore
+    const  [blogMessage, setBlogMessage] = useState<Blog[]>({title: "",modDatetime: "", pubDatetime: '', description:'',draft:undefined,feature:undefined});
+    const realCheck= check=='featured'?'featured':'draft'
+    async function send(){
+        const responsedemo2 = await fetch(`https://myblogvalue-production.up.railway.app/blog`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache', // 防止缓存
+            },
+        });
+
+        const data = await responsedemo2.json();
+        setBlogMessage(data.comments.filter((item:Blog)=> (sure?item[realCheck]:!item[realCheck])))
+    }
+    useEffect(() => {
+        send()
+    },[])
     function slugify(text: string): string {
         return text
             .toString()
@@ -22,8 +42,6 @@ export async function RealCard(props: Props) {
             .replace(/[^\w\-]+/g, '')   // 移除非单词字符
             .replace(/\-\-+/g, '-');    // 替换多个 - 为单个 -
     }
-    const data = await responsedemo2.json();
-    const blogMessage = data.comments.filter((item:any)=> (sure?item[check]:!item[check]))
     const headerProps = {
         class: "text-lg font-medium decoration-dashed hover:underline",
     };
@@ -48,7 +66,7 @@ export async function RealCard(props: Props) {
         return `${day} ${month}, ${year} | at ${hours}:${minutes} ${ampm}`;
     }
     return <div>
-        {blogMessage.map((item: any,index:number) => (<>
+        {blogMessage.length > 0?blogMessage.map((item: any,index:number) => (<>
             <div key={index}   >
                 <a
                     href={`/myposts/${slugify(item.title)}`}
@@ -67,6 +85,6 @@ export async function RealCard(props: Props) {
             </div>
             <br/>
             </>
-            ))}
+            )):''}
     </div>
 }

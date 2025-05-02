@@ -139,7 +139,7 @@ function slugify(text: string): string {
             <!--    <MyCard variant="h3"  data={data} id={slugify(data.title)} />-->
             <!--  ))}-->
             <!--</ul>-->
-              <RealCard check="featured" size="h3" sure={true}/>
+              <RealCard check="featured" size="h3" sure={true} client:only="react"/>
           </section>
           {recentPosts.length > 0 && <Hr />}
         </>
@@ -163,7 +163,7 @@ function slugify(text: string): string {
           recentBlogMessage.length > 0 && (
          <section id="recent-posts" class="pt-12 pb-6">
            <h2 class="text-2xl font-semibold tracking-wide">Recent Posts</h2>
-             <RealCard check="featured" size="h3" sure={false} />
+             <RealCard check="featured" size="h3" sure={false} client:only="react"/>
            <!--<ul>-->
            <!--  {recentBlogMessage.map(-->
            <!--    (data:any, index) =>-->
