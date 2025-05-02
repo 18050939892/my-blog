@@ -1,5 +1,5 @@
 {
-	"expiration": false,
+	"expiration": 5,
 	"allowQuery": [
 		"x_astro_path"
 	],

@@ -1,10 +1,12 @@
 ---
 // @ts-nocheck
 export const config = {
-isr: {
-    expiration: 3 // 每60秒重新生成页面
-}
+    // 注意: 当使用 Vercel 的 ISR 时，这个配置应该与 astro.config.mjs 中的保持一致
+    isr: {
+        expiration: 5 // 60秒，与 astro.config.mjs 中保持一致
+    }
 };
+
 import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
@@ -34,6 +36,7 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache', // 防止缓存
         },
     });
    const data =await responsedemo2.json();

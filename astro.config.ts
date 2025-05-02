@@ -20,7 +20,9 @@ export default defineConfig({
   ],
     output: 'static',
     adapter: vercel({
-        isr: true,
+        isr: {
+            expiration: 5 // 60秒后过期（你可以调整这个值）
+        }
     }),
   markdown: {
     remarkPlugins: [remarkToc, [remarkCollapse, { test: "Table of contents" }]],
