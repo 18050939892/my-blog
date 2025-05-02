@@ -1,5 +1,10 @@
 ---
 // @ts-nocheck
+export const config = {
+isr: {
+    expiration: 3 // 每60秒重新生成页面
+}
+};
 import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
@@ -16,11 +21,7 @@ import { SITE } from "@/config";
 import { SOCIALS } from "@/constants";
 
 
-export const config = {
-    isr: {
-        expiration: 3 // 每60秒重新生成页面
-    }
-};
+
 
 
 const posts = await getCollection("blog");
