@@ -162,7 +162,7 @@ const rawContent = item?.body || '';
             }
             
             const response = await fetch('https://myblogvalue-production.up.railway.app/blog', {
-                method: 'POST',
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${adminSecret}`
