@@ -16,12 +16,11 @@ export default function Comment({ articleTitle }: CommentProps) {
     const [message, setMessage] = useState("");
     const [dataDemo,setDataDemo]=useState<Comment[]>({ author: "", text: "", articleTitle: '' })
    async function send(){
-        const responsedemo = await fetch('/api/comments', {
-            method: 'POST',
+        const responsedemo = await fetch('https://myblogvalue-production.up.railway.app/comments', {
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ author: "", text: "", articleTitle: '' }),
         });
        const data = await responsedemo.json();
       setDataDemo(
@@ -59,7 +58,7 @@ export default function Comment({ articleTitle }: CommentProps) {
         setIsSubmitting(true);
 
         try {
-            const response = await fetch('/api/comments', {
+            const response = await fetch('https://myblogvalue-production.up.railway.app/comments', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
