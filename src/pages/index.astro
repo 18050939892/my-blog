@@ -15,6 +15,14 @@ import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
 import { SITE } from "@/config";
 import { SOCIALS } from "@/constants";
 
+
+export const config = {
+    isr: {
+        expiration: 3 // 每60秒重新生成页面
+    }
+};
+
+
 const posts = await getCollection("blog");
 
 const sortedPosts = getSortedPosts(posts);

@@ -19,7 +19,9 @@ export default defineConfig({
       // mdx(), tailwind()
   ],
     output: 'static',
-    adapter: vercel({}),
+    adapter: vercel({
+        isr: true,
+    }),
   markdown: {
     remarkPlugins: [remarkToc, [remarkCollapse, { test: "Table of contents" }]],
     shikiConfig: {

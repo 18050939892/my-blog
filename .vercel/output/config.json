@@ -21,11 +21,11 @@
 		},
 		{
 			"src": "^/api/comments/?$",
-			"dest": "_render"
+			"dest": "/_isr?x_astro_path=$0"
 		},
 		{
 			"src": "^/api/edit-post/?$",
-			"dest": "_render"
+			"dest": "/_isr?x_astro_path=$0"
 		},
 		{
 			"src": "^/.*$",
