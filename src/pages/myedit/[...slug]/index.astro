@@ -180,7 +180,8 @@ const rawContent = item?.content || '';
                 featured,
                 author
             }
-            
+            const ntb = document.getElementById('createButton') as HTMLButtonElement
+            ntb.innerText="修改已提交，成功将跳转首页"
             const response = await fetch('https://myblogvalue-production.up.railway.app/blog', {
                 method: 'PUT',
                 headers: {
@@ -197,8 +198,7 @@ const rawContent = item?.content || '';
                 })
             })
             
-           const ntb = document.getElementById('createButton') as HTMLButtonElement
-           ntb.innerText="修改已提交，成功将跳转首页"
+
             const result = await response.json()
             if (result.success) {
                 
@@ -233,3 +233,14 @@ const rawContent = item?.content || '';
     
     // const { Content } = await render(item);
 </script>
+<style>
+#createButton{
+    all : revert;
+    background-color: #06c;
+    font-size: 20px;
+    border-radius: 20px 20px;
+    }
+#createButton:hover{
+    background-color: #0071e3;
+    }
+</style>
