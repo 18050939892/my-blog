@@ -5,7 +5,7 @@ export interface Props{
 }
 export function MyContent(props: Props) {
     const {title} = props
-    const [content, setContent] = useState<string>('555')
+    const [content, setContent] = useState<string>('')
     async  function send(){
     const responsedemo = await fetch('https://myblogvalue-production.up.railway.app/blog', {
         method: 'GET',
