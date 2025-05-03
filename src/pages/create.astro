@@ -39,7 +39,8 @@ const today = new Date().toISOString().split('T')[0]
                 <MarkdownEditor client:load />
             </div>
         </form>
-        <button id="createButtonOne"> 点我添加</button>
+        <button id="createButtonOne" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50">点我添加</button>
+        <!--<button id="createButtonOne"> 点我添加</button>-->
     </Main>
     <Footer />
 </Layout>
@@ -176,14 +177,14 @@ const today = new Date().toISOString().split('T')[0]
         }
     )
 </script>
-<style>
-#createButtonOne{
-    all : revert;
-    background-color: #06c;
-    font-size: 20px;
-    border-radius: 20px 20px;
-    }
-#createButtonOne:hover{
-    background-color: #0071e3;
-    }
-</style>
+<!--<style>-->
+<!--#createButtonOne{-->
+<!--    all : revert;-->
+<!--    background-color: #06c;-->
+<!--    font-size: 20px;-->
+<!--    border-radius: 20px 20px;-->
+<!--    }-->
+<!--#createButtonOne:hover{-->
+<!--    background-color: #0071e3;-->
+<!--    }-->
+<!--</style>-->

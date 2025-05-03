@@ -91,7 +91,7 @@ const rawContent = item?.content || '';
                 <CommentMarkdownEditor client:load initialValue={item?.title}></CommentMarkdownEditor>
             </div>
         </form>
-        <button id="createButton"> 点我修改</button>
+        <button id="createButton" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"> 点我修改</button>
     </Main>
     <Footer />
 </Layout>
@@ -233,14 +233,14 @@ const rawContent = item?.content || '';
     
     // const { Content } = await render(item);
 </script>
-<style>
-#createButton{
-    all : revert;
-    background-color: #06c;
-    font-size: 20px;
-    border-radius: 20px 20px;
-    }
-#createButton:hover{
-    background-color: #0071e3;
-    }
-</style>
+<!--<style>-->
+<!--#createButton{-->
+<!--    all : revert;-->
+<!--    background-color: #06c;-->
+<!--    font-size: 20px;-->
+<!--    border-radius: 20px 20px;-->
+<!--    }-->
+<!--#createButton:hover{-->
+<!--    background-color: #0071e3;-->
+<!--    }-->
+<!--</style>-->
