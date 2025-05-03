@@ -10,7 +10,8 @@ import { getCollection } from 'astro:content'
 import getSortedPosts from '../../../utils/getSortedPosts'
 import { getPath } from '../../../utils/getPath'
 
-import MarkdownEditor from '@/components/MarkdownEditor';
+import MarkdownEditor from '@/components/MarkdownEditor'
+import { CommentMarkdownEditor } from '../../../components/CommentMarkdownEditor'
 
 let error = null
 let success = false
@@ -86,7 +87,8 @@ const rawContent = item?.content || '';
             <!--* <label htmlFor="content">content:</label>-->
             <!--<textarea name="content" id="markdown-editor">{rawContent}</textarea>-->
             <div id="editor-container">
-                <MarkdownEditor client:load initialValue={rawContent}></MarkdownEditor>
+                <!--<MarkdownEditor client:load initialValue={rawContent}></MarkdownEditor>-->
+                <CommentMarkdownEditor client:load initialValue={item?.title}></CommentMarkdownEditor>
             </div>
         </form>
         <button id="createButton"> 点我修改</button>
@@ -194,13 +196,17 @@ const rawContent = item?.content || '';
                     }
                 })
             })
-            window.location.href = '/'
             
+           const ntb = document.getElementById('createButton') as HTMLButtonElement
+           ntb.innerText="修改已提交，成功将跳转首页"
             const result = await response.json()
-            if (response.ok) {
-                console.log(result.message)
+            if (result.success) {
+                
+                window.location.href = '/'
+                // 如果是即时显示类型，可以更新本地评论列表
+                // setCommentList([...commentList, {...newComment, date: new Date().toISOString()}]);
             } else {
-                console.log(result.error)
+                ntb.innerText="提交失败"
             }
             // window.location.href = '/';
         } catch (e) {

@@ -39,7 +39,7 @@ const today = new Date().toISOString().split('T')[0]
                 <MarkdownEditor client:load />
             </div>
         </form>
-        <button id="createButton"> 点我添加</button>
+        <button id="createButtonOne"> 点我添加</button>
     </Main>
     <Footer />
 </Layout>
@@ -140,7 +140,8 @@ const today = new Date().toISOString().split('T')[0]
                 featured,
                 author
             }
-            
+            const ntb = document.getElementById('createButtonOne') as HTMLButtonElement
+            ntb.innerText="新文章提交中，成功将跳转首页"
             const response = await fetch('https://myblogvalue-production.up.railway.app/blog', {
                 method: 'POST',
                 headers: {
@@ -156,13 +157,11 @@ const today = new Date().toISOString().split('T')[0]
                     }
                 })
             })
-            window.location.href = '/'
-            
             const result = await response.json()
-            if (response.ok) {
-                console.log(result.message)
+            if (response.status == 200) {
+                window.location.href = '/'
             } else {
-                console.log(result.error)
+                ntb.innerText="提交失败"
             }
         } catch (e) {
             console.log(e instanceof Error ? e.message : String(e))
@@ -171,7 +170,7 @@ const today = new Date().toISOString().split('T')[0]
     }
     
     
-    document.getElementById('createButton')?.addEventListener('click',
+    document.getElementById('createButtonOne')?.addEventListener('click',
         (e)=>{
             create(e)
         }

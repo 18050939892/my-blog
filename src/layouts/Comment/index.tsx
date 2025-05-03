@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { useEffect, useState } from 'react'
+import { marked } from 'marked'
 interface CommentProps {
     articleTitle: string;
 }
@@ -10,24 +11,24 @@ interface Comment {
     text: string;
 }
 export default function Comment({ articleTitle }: CommentProps) {
-
+    
     const [newComment, setNewComment] = useState({ author: "", text: "", articleTitle });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState("");
     const [dataDemo,setDataDemo]=useState<Comment[]>({ author: "", text: "", articleTitle: '' })
-   async function send(){
+    async function send(){
         const responsedemo = await fetch('https://myblogvalue-production.up.railway.app/comments', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             },
         });
-       const data = await responsedemo.json();
-      setDataDemo(
-        data.comments.filter(
-          (item: { articleTitle: string }) => item.articleTitle === articleTitle
-        )
-      );
+        const data = await responsedemo.json();
+        setDataDemo(
+            data.comments.filter(
+                (item: { articleTitle: string }) => item.articleTitle === articleTitle
+            )
+        );
     }
     // async function sendblog(){
     //     const responsedemo2 = await fetch('/api/edit-post', {
@@ -46,17 +47,16 @@ export default function Comment({ articleTitle }: CommentProps) {
         send()
         // sendblog()
     },[])
-    
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
+        
         if (!newComment.author.trim() || !newComment.text.trim()) {
             setMessage("请填写昵称和评论内容");
             return;
         }
-
+        
         setIsSubmitting(true);
-
+        
         try {
             const response = await fetch('https://myblogvalue-production.up.railway.app/comments', {
                 method: 'POST',
@@ -65,13 +65,13 @@ export default function Comment({ articleTitle }: CommentProps) {
                 },
                 body: JSON.stringify(newComment),
             });
-
+            
             const result = await response.json();
-
+            
             if (result.success) {
                 setMessage("评论已提交，审核后将显示");
                 setNewComment({...newComment, author: "", text: ""});
-
+                
                 // 如果是即时显示类型，可以更新本地评论列表
                 // setCommentList([...commentList, {...newComment, date: new Date().toISOString()}]);
             } else {
@@ -88,11 +88,11 @@ export default function Comment({ articleTitle }: CommentProps) {
         send()
         
     };
-
+    
     return (
         <section className="comment-section my-8">
             <h2 className="text-2xl font-bold mb-4">评论</h2>
-
+            
             {dataDemo.length > 0 ? (
                 <div className="space-y-4 mb-6">
                     {dataDemo.map((comment, index:number) => (
@@ -102,14 +102,14 @@ export default function Comment({ articleTitle }: CommentProps) {
                                 <span className="mx-2">•</span>
                                 <time>{new Date(comment.date).toLocaleDateString()}</time>
                             </div>
-                            <p className="text-gray-800 dark:text-gray-200">{comment.text}</p>
+                            <p className="text-gray-800 dark:text-gray-200" dangerouslySetInnerHTML={{ __html: marked(comment.text) }}></p>
                         </div>
                     ))}
                 </div>
             ) : (
                 <p className="text-gray-600 dark:text-gray-400 mb-4">还没有评论。成为第一个评论的人吧！</p>
             )}
-
+            
             <form onSubmit={handleSubmit} className="space-y-4 mt-6">
                 <div>
                     <label htmlFor="author" className="block text-sm font-medium mb-1">昵称</label>
@@ -122,7 +122,7 @@ export default function Comment({ articleTitle }: CommentProps) {
                         required
                     />
                 </div>
-
+                
                 <div>
                     <label htmlFor="text" className="block text-sm font-medium mb-1">评论</label>
                     <textarea
@@ -133,13 +133,13 @@ export default function Comment({ articleTitle }: CommentProps) {
                         required
                     />
                 </div>
-
+                
                 {message && (
                     <div className="text-sm py-2 px-3 rounded-md bg-blue-50 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
                         {message}
                     </div>
                 )}
-
+                
                 <button
                     type="submit"
                     disabled={isSubmitting}
@@ -151,4 +151,3 @@ export default function Comment({ articleTitle }: CommentProps) {
         </section>
     );
 }
-
